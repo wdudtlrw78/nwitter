@@ -10,17 +10,33 @@ function App() {
     // 실제로 유저들이 로그인이 되었는지 안 되었는지 알 수있다.
     authService.onAuthStateChanged((user) => {
       if (user) {
-        setUserObj(user);
+        setUserObj({
+          displayName: user.displayName,
+          uid: user.uid,
+          updateProfile: (args) => user.updateProfile(args),
+        });
       } else {
-        setIsLoggedIn(false);
+        setUserObj(null);
       }
       setInit(true); // false면 router 숨길 것 이다.
     });
   }, []);
 
+  const refreshUser = () => {
+    const user = authService.currentUser;
+    setUserObj({
+      displayName: user.displayName,
+      uid: user.uid,
+      updateProfile: (args) => user.updateProfile(args),
+    });
+  };
   return (
     <>
-      {init ? <AppRouter isLoggedIn={Boolean(userObj)} userObj={userObj} /> : 'Initializing...'}
+      {init ? (
+        <AppRouter refreshUser={refreshUser} isLoggedIn={Boolean(userObj)} userObj={userObj} />
+      ) : (
+        'Initializing...'
+      )}
       <footer>&copy; {new Date().getFullYear()}</footer>
     </>
   );
